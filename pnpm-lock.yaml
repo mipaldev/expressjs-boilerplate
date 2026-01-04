@@ -18,7 +18,7 @@ importers:
         specifier: ^17.4.2
         version: 17.4.2
       drizzle-orm:
-        specifier: ^0.45.2
+        specifier: ^0.45.1
         version: 0.45.2(@types/pg@8.20.0)(pg@8.21.0)
       express:
         specifier: ^5.2.1
@@ -58,7 +58,7 @@ importers:
         specifier: ^8.20.0
         version: 8.20.0
       drizzle-kit:
-        specifier: ^0.31.10
+        specifier: ^0.31.9
         version: 0.31.10
       eslint:
         specifier: ^10.4.1
