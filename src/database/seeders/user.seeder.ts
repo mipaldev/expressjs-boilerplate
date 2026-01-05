@@ -7,9 +7,9 @@ import { users } from '../schemas/user.table';
 export async function userSeeder() {
   // await db.delete(users);
 
-  const existingUser = await db.select().from(users).where(eq(users.email, 'pepet@example.com'));
+  const existing = await db.select().from(users).where(eq(users.email, 'pepet@example.com'));
 
-  if (existingUser.length > 0) {
+  if (existing.length > 0) {
     loggerUtil.warn('[User Seeder] User already exists.');
     return;
   }

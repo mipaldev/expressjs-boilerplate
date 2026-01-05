@@ -27,6 +27,13 @@ app.get('/', (_req, res) => {
 const apiRouter = express.Router();
 app.use('/api', apiRouter);
 
+app.use((_req, _res, next) => {
+  next({
+    statusCode: 404,
+    message: 'Not Found',
+  });
+});
+
 app.use(errorHandler);
 
 export { app };
