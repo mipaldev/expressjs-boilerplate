@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import { errorHandler } from '@/shared/middlewares/error-handler.middleware';
 import { httpLogger } from '@/shared/middlewares/http-logger.middleware';
 import { envConfig } from '@/config/env.config';
+import { userRouter } from '@/module/user/user.route';
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.get('/', (_req, res) => {
 });
 
 const apiRouter = express.Router();
+apiRouter.use('/users', userRouter);
 app.use('/api', apiRouter);
 
 app.use((_req, _res, next) => {
