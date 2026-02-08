@@ -1,5 +1,9 @@
+import type {
+  UserDetailResponse,
+  UserResponse,
+  UserWithPassword,
+} from './types/user-response.type';
 import type { UserEntity } from './types/user.type';
-import type { UserDetailResponse, UserResponse } from './types/user-response.type';
 
 function toUserResponse(user: UserEntity): UserResponse {
   return {
@@ -19,7 +23,19 @@ function toUserDetailResponse(user: UserEntity): UserDetailResponse {
   };
 }
 
+function toUserWithPassword(user: UserEntity): UserWithPassword {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    password: user.password,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
+}
+
 export const userMapper = {
   toUserResponse,
   toUserDetailResponse,
+  toUserWithPassword,
 };

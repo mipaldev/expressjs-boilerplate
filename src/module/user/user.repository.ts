@@ -1,6 +1,7 @@
 import { db } from '@/database/client';
 import { users } from '@/database/schemas/user.table';
 import type { PagedResult } from '@/shared/types/pagination.type';
+import { paginationUtil } from '@/shared/utils/pagination.util';
 import { asc, count, desc, eq, ilike } from 'drizzle-orm';
 import type { QueryUserInput } from './schemas/query-user.schema';
 import type { UpdateUserInput } from './schemas/update-user.schema';
@@ -15,30 +16,21 @@ async function create(
 
 async function findAll(query: QueryUserInput): Promise<PagedResult<UserEntity>> {
   const { page, limit, search, sortBy = 'createdAt', sortOrder = 'desc' } = query;
-  const offset = (page - 1) * limit;
+  const offset = paginationUtil.calcOffset(page, limit);
 
   const whereClause = search ? ilike(users.name, `%${search}%`) : undefined;
-
   const orderColumn = users[sortBy as keyof typeof users] ?? users.createdAt;
   const orderClause =
     sortOrder === 'asc'
       ? asc(orderColumn as Parameters<typeof asc>[0])
       : desc(orderColumn as Parameters<typeof desc>[0]);
 
-  const [rows, [{ value: total }]] = await Promise.all([
+  return paginationUtil.paginate(
     db.select().from(users).where(whereClause).orderBy(orderClause).limit(limit).offset(offset),
     db.select({ value: count() }).from(users).where(whereClause),
-  ]);
-
-  return {
-    data: rows,
-    meta: {
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    },
-  };
+    page,
+    limit,
+  );
 }
 
 async function findById(id: UserEntity['id']): Promise<UserEntity | null> {
@@ -56,9 +48,9 @@ async function updateById(id: UserEntity['id'], data: UpdateUserInput): Promise<
   return user ?? null;
 }
 
-async function deleteById(id: UserEntity['id']): Promise<boolean> {
-  const result = await db.delete(users).where(eq(users.id, id)).returning({ id: users.id });
-  return result.length > 0;
+async function deleteById(id: UserEntity['id']): Promise<UserEntity | null> {
+  const [user] = await db.delete(users).where(eq(users.id, id)).returning();
+  return user ?? null;
 }
 
 export const userRepository = {

@@ -43,14 +43,7 @@ async function getById(id: UserEntity['id']): Promise<UserDetailResponse> {
 async function getByEmail(email: UserEntity['email']): Promise<UserWithPassword> {
   const user = await userRepository.findByEmail(email);
   if (!user) throw new NotFoundException('User not found');
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    password: user.password,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
-  };
+  return userMapper.toUserWithPassword(user);
 }
 
 async function update(id: UserEntity['id'], input: UpdateUserInput): Promise<UserDetailResponse> {
@@ -73,9 +66,10 @@ async function update(id: UserEntity['id'], input: UpdateUserInput): Promise<Use
   return userMapper.toUserDetailResponse(updated);
 }
 
-async function remove(id: UserEntity['id']): Promise<void> {
+async function remove(id: UserEntity['id']): Promise<UserResponse> {
   const deleted = await userRepository.deleteById(id);
   if (!deleted) throw new NotFoundException('User not found');
+  return userMapper.toUserResponse(deleted);
 }
 
 export const userService = {
