@@ -48,7 +48,7 @@ function error({
   res: Response;
   statusCode: HttpStatus;
   message: string;
-  errors?: Record<string, string | string[]>;
+  errors?: Record<string, string[]>;
 }): void {
   const body: ApiErrorResponse = {
     success: false,

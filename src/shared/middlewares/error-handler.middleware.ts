@@ -1,18 +1,9 @@
 import type { NextFunction, Request, Response } from 'express';
 import { HTTP_STATUS } from '@/shared/constants/http-status.constant';
 import { HttpException } from '@/shared/exceptions/http.exception';
-import { loggerUtil } from '@/shared/utils/logger.util';
 import { httpResponseUtil } from '@/shared/utils/http-response.util';
-
-type ErrorLike = {
-  message?: string;
-  statusCode?: number;
-  errors?: Record<string, string | string[]>;
-};
-
-function isErrorLike(err: unknown): err is ErrorLike {
-  return typeof err === 'object' && err !== null;
-}
+import { loggerUtil } from '@/shared/utils/logger.util';
+import { zodErrorUtil } from '@/shared/utils/zod-error.util';
 
 export function errorHandler(
   err: unknown,
@@ -20,30 +11,33 @@ export function errorHandler(
   res: Response,
   _next: NextFunction,
 ): void {
-  const statusCode =
-    err instanceof HttpException
-      ? err.statusCode
-      : isErrorLike(err) && typeof err.statusCode === 'number'
-        ? err.statusCode
-        : HTTP_STATUS.INTERNAL_SERVER_ERROR;
+  if (zodErrorUtil.isZodError(err)) {
+    const errors = zodErrorUtil.normalize(err);
+    loggerUtil.warn(`Validation error: ${JSON.stringify(errors)}`);
+    httpResponseUtil.error({
+      res,
+      statusCode: HTTP_STATUS.BAD_REQUEST,
+      message: 'Bad Request',
+      errors,
+    });
+    return;
+  }
 
-  const message =
-    err instanceof HttpException
-      ? err.message
-      : isErrorLike(err) && typeof err.message === 'string'
-        ? err.message
-        : statusCode === HTTP_STATUS.NOT_FOUND
-          ? 'Not Found'
-          : 'Internal Server Error';
+  if (err instanceof HttpException) {
+    loggerUtil.warn(`${err.statusCode} ${err.message}`);
+    httpResponseUtil.error({
+      res,
+      statusCode: err.statusCode,
+      message: err.message,
+    });
+    return;
+  }
 
-  const errors = isErrorLike(err) ? err.errors : undefined;
-
-  loggerUtil.error(err instanceof Error ? err.message : message);
-
+  const message = err instanceof Error ? err.message : 'Internal Server Error';
+  loggerUtil.error(`Unhandled error: ${message}`);
   httpResponseUtil.error({
     res,
-    statusCode,
-    message,
-    errors,
+    statusCode: HTTP_STATUS.INTERNAL_SERVER_ERROR,
+    message: 'Internal Server Error',
   });
 }

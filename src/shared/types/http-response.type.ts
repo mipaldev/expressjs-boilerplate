@@ -11,7 +11,7 @@ export type ApiErrorResponse = {
   success: false;
   statusCode: number;
   message: string;
-  errors?: Record<string, string | string[]>;
+  errors?: Record<string, string[]>;
 };
 
 export type PaginatedApiResponse<T> = PagedResult<T> & {
