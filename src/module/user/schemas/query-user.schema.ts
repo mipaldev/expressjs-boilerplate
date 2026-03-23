@@ -1,11 +1,13 @@
+import { ERROR_MESSAGES } from '@/shared/constants/error-messages.constant';
+import { baseQuerySchema } from '@/shared/schemas/base-query.schema';
 import { z } from 'zod';
 
-export const queryUserSchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(10),
-  search: z.string().optional(),
-  sortBy: z.enum(['name', 'email', 'createdAt']).optional(),
-  sortOrder: z.enum(['asc', 'desc']).optional(),
+export const queryUserSchema = baseQuerySchema.extend({
+  sortBy: z
+    .enum(['name', 'email', 'createdAt'], {
+      message: ERROR_MESSAGES.invalidEnum(['name', 'email', 'createdAt']),
+    })
+    .optional(),
 });
 
 export type QueryUserInput = z.infer<typeof queryUserSchema>;
