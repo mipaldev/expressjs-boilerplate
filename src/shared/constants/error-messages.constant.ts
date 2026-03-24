@@ -11,7 +11,7 @@ export const ERROR_MESSAGES = {
   invalidUrl: 'Invalid URL format.',
   invalidUuid: 'Invalid UUID format.',
   invalidDate: 'Invalid date format.',
-  invalidEnum: (allowedValues: string[]) =>
+  invalidEnum: <T extends readonly string[]>(allowedValues: T) =>
     `Invalid value. Allowed values are: ${allowedValues.join(', ')}.`,
 
   positiveNumber: 'Value must be greater than 0.',
