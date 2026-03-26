@@ -7,6 +7,14 @@ import type { QueryUserInput } from './schemas/query-user.schema';
 import type { UpdateUserInput } from './schemas/update-user.schema';
 import type { UserEntity } from './types/user.type';
 
+const SORTABLE_COLUMNS = {
+  name: users.name,
+  email: users.email,
+  createdAt: users.createdAt,
+} satisfies Record<string, unknown>;
+
+type SortableColumn = keyof typeof SORTABLE_COLUMNS;
+
 async function create(
   data: Omit<UserEntity, 'id' | 'createdAt' | 'updatedAt'>,
 ): Promise<UserEntity> {
@@ -15,22 +23,26 @@ async function create(
 }
 
 async function findAll(query: QueryUserInput): Promise<PagedResult<UserEntity>> {
-  const { page, limit, search, sortBy = 'createdAt', sortOrder = 'desc' } = query;
+  const { page = 1, limit = 10, search, sortBy = 'createdAt', sortOrder = 'desc' } = query;
+
   const offset = paginationUtil.calcOffset(page, limit);
-
   const whereClause = search ? ilike(users.name, `%${search}%`) : undefined;
-  const orderColumn = users[sortBy as keyof typeof users] ?? users.createdAt;
-  const orderClause =
-    sortOrder === 'asc'
-      ? asc(orderColumn as Parameters<typeof asc>[0])
-      : desc(orderColumn as Parameters<typeof desc>[0]);
 
-  return paginationUtil.paginate(
+  const column =
+    SORTABLE_COLUMNS[
+      (sortBy as SortableColumn) in SORTABLE_COLUMNS ? (sortBy as SortableColumn) : 'createdAt'
+    ];
+  const orderClause = sortOrder === 'asc' ? asc(column) : desc(column);
+
+  const [rows, [{ value: total }]] = await Promise.all([
     db.select().from(users).where(whereClause).orderBy(orderClause).limit(limit).offset(offset),
     db.select({ value: count() }).from(users).where(whereClause),
-    page,
-    limit,
-  );
+  ]);
+
+  return {
+    data: rows,
+    meta: paginationUtil.buildMeta(total, page, limit),
+  };
 }
 
 async function findById(id: UserEntity['id']): Promise<UserEntity | null> {
