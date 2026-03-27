@@ -5,6 +5,7 @@ import { errorHandler } from '@/shared/middlewares/error-handler.middleware';
 import { httpLogger } from '@/shared/middlewares/http-logger.middleware';
 import { envConfig } from '@/config/env.config';
 import { userRouter } from '@/module/user/user.route';
+import { NotFoundException } from '@/shared/exceptions/not-found.exception';
 
 const app = express();
 
@@ -30,10 +31,7 @@ apiRouter.use('/users', userRouter);
 app.use('/api', apiRouter);
 
 app.use((_req, _res, next) => {
-  next({
-    statusCode: 404,
-    message: 'Not Found',
-  });
+  next(new NotFoundException('Route not found'));
 });
 
 app.use(errorHandler);
