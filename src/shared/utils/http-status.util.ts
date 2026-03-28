@@ -19,7 +19,7 @@ const STATUS_TEXT = {
 } as const;
 
 function statusText(status: HttpStatus): string {
-  return STATUS_TEXT[status] ?? 'Unknown Status';
+  return STATUS_TEXT[status] || 'Unknown Status';
 }
 
 export const httpStatusUtil = {
