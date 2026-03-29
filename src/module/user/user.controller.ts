@@ -6,7 +6,7 @@ import { queryUserSchema } from './schemas/query-user.schema';
 import { updateUserSchema } from './schemas/update-user.schema';
 import { userService } from './user.service';
 
-async function createUser(req: Request, res: Response, next: NextFunction) {
+async function createUser(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const input = createUserSchema.parse(req.body);
     const user = await userService.create(input);
@@ -22,7 +22,7 @@ async function createUser(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-async function getUsers(req: Request, res: Response, next: NextFunction) {
+async function getUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const query = queryUserSchema.parse(req.query);
     const result = await userService.getAll(query);
@@ -38,7 +38,11 @@ async function getUsers(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-async function getUserById(req: Request<{ id: string }>, res: Response, next: NextFunction) {
+async function getUserById(
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
     const user = await userService.getById(req.params.id);
 
@@ -52,7 +56,11 @@ async function getUserById(req: Request<{ id: string }>, res: Response, next: Ne
   }
 }
 
-async function updateUser(req: Request<{ id: string }>, res: Response, next: NextFunction) {
+async function updateUser(
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
     const input = updateUserSchema.parse(req.body);
     const user = await userService.update(req.params.id, input);
@@ -68,7 +76,11 @@ async function updateUser(req: Request<{ id: string }>, res: Response, next: Nex
   }
 }
 
-async function deleteUser(req: Request<{ id: string }>, res: Response, next: NextFunction) {
+async function deleteUser(
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
     const deleted = await userService.remove(req.params.id);
 
