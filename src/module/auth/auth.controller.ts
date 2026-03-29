@@ -1,12 +1,12 @@
 import { HTTP_STATUS } from '@/shared/constants/http-status.constant';
 import { httpResponseUtil } from '@/shared/utils/http-response.util';
+import type { AuthenticatedRequest } from '@/shared/types/jwt-payload.type';
 import type { NextFunction, Request, Response } from 'express';
 import { loginSchema } from './schemas/login.schema';
 import { registerSchema } from './schemas/register.schema';
 import { authService } from './auth.service';
-import type { AuthenticatedRequest } from '@/shared/types/jwt-payload.type';
 
-async function register(req: Request, res: Response, next: NextFunction) {
+async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const input = registerSchema.parse(req.body);
     const user = await authService.register(input);
@@ -21,7 +21,7 @@ async function register(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-async function login(req: Request, res: Response, next: NextFunction) {
+async function login(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const input = loginSchema.parse(req.body);
     const result = await authService.login(input);
@@ -36,9 +36,10 @@ async function login(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-async function me(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+async function me(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const user = await authService.me(req.user.sub);
+    const { sub } = (req as AuthenticatedRequest).user;
+    const user = await authService.me(sub);
     httpResponseUtil.success({
       res,
       statusCode: HTTP_STATUS.OK,
