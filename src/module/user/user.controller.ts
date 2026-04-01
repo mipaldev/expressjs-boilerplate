@@ -1,4 +1,5 @@
 import { HTTP_STATUS } from '@/shared/constants/http-status.constant';
+import { uuidParamSchema } from '@/shared/schemas/uuid-param.schema';
 import { httpResponseUtil } from '@/shared/utils/http-response.util';
 import type { NextFunction, Request, Response } from 'express';
 import { createUserSchema } from './schemas/create-user.schema';
@@ -10,7 +11,6 @@ async function createUser(req: Request, res: Response, next: NextFunction): Prom
   try {
     const input = createUserSchema.parse(req.body);
     const user = await userService.create(input);
-
     httpResponseUtil.success({
       res,
       statusCode: HTTP_STATUS.CREATED,
@@ -26,7 +26,6 @@ async function getUsers(req: Request, res: Response, next: NextFunction): Promis
   try {
     const query = queryUserSchema.parse(req.query);
     const result = await userService.getAll(query);
-
     httpResponseUtil.paginated({
       res,
       statusCode: HTTP_STATUS.OK,
@@ -44,8 +43,8 @@ async function getUserById(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const user = await userService.getById(req.params.id);
-
+    const { id } = uuidParamSchema.parse(req.params);
+    const user = await userService.getById(id);
     httpResponseUtil.success({
       res,
       statusCode: HTTP_STATUS.OK,
@@ -62,9 +61,9 @@ async function updateUser(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const { id } = uuidParamSchema.parse(req.params);
     const input = updateUserSchema.parse(req.body);
-    const user = await userService.update(req.params.id, input);
-
+    const user = await userService.update(id, input);
     httpResponseUtil.success({
       res,
       statusCode: HTTP_STATUS.OK,
@@ -82,13 +81,13 @@ async function deleteUser(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const deleted = await userService.remove(req.params.id);
-
+    const { id } = uuidParamSchema.parse(req.params);
+    const deleted = await userService.remove(id);
     httpResponseUtil.success({
       res,
+      statusCode: HTTP_STATUS.OK,
       message: 'User deleted successfully',
       data: deleted,
-      statusCode: HTTP_STATUS.OK,
     });
   } catch (err) {
     next(err);
