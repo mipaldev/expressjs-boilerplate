@@ -24,7 +24,8 @@ export function errorHandler(
   }
 
   if (err instanceof HttpException) {
-    loggerUtil.warn(`${err.statusCode} ${err.message}`);
+    const level = err.statusCode >= 500 ? 'error' : 'warn';
+    loggerUtil[level](`${err.statusCode} ${err.message}`);
     httpResponseUtil.error({
       res,
       statusCode: err.statusCode,
