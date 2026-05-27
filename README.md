@@ -1,4 +1,4 @@
-# Express TypeScript Boilerplate
+﻿# Express TypeScript Boilerplate
 
 A production-ready REST API starter built with Express 5, TypeScript, PostgreSQL, and a carefully chosen set of modern tools. Clone it, configure your environment, and start building features — not infrastructure.
 
@@ -30,6 +30,7 @@ Most Express starters are either too minimal (no auth, no validation, no error h
 - **Database Migrations** — version-controlled SQL migrations with Drizzle ORM
 - **Database Seeding** — seed scripts for initial data
 - **Graceful Shutdown** — handles SIGTERM and SIGINT cleanly
+- **Docker Support** — optional multi-stage Dockerfile and Docker Compose setup for easy deployment
 
 ### Ready to Extend
 
@@ -40,7 +41,6 @@ Most Express starters are either too minimal (no auth, no validation, no error h
 - Email verification and password reset
 - Rate limiting
 - API versioning
-- Docker deployment
 
 ---
 
@@ -106,6 +106,7 @@ module/
 - Node.js 20+
 - pnpm (`npm install -g pnpm`)
 - PostgreSQL database
+- Docker & Docker Compose (Optional)
 
 ### Installation
 
@@ -128,13 +129,13 @@ cp .env.example .env
 | `APP_URL` | Yes | Base URL of this API (e.g. `http://localhost:4000`) |
 | `ALLOWED_ORIGINS` | Yes | Comma-separated list of allowed CORS origins |
 | `NODE_ENV` | No | `development` \| `production` \| `test` (default: `development`) |
-| `PORT` | No | Port to listen on (default: `3000`) |
+| `PORT` | No | Port to listen on (default: `8000`) |
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
 | `JWT_SECRET` | Yes | Secret key for signing tokens (32+ characters recommended) |
 | `JWT_EXPIRES_IN` | Yes | Token expiry duration (e.g. `1d`, `7d`, `2h`) |
-| `LOG_LEVEL` | No | `fatal` \| `error` \| `warn` \| `info` \| `debug` \| `trace` (default: `info`) |
+| `LOG_LEVEL` | No | `error` \| `warn` \| `info` \| `debug` \| `trace` (default: `info`) |
 
-### Database Setup
+### Database Setup (Local)
 
 ```bash
 # Apply migrations
@@ -144,7 +145,7 @@ pnpm db:migrate
 pnpm db:seed
 ```
 
-### Run
+### Run (Local)
 
 ```bash
 # Development (hot reload)
@@ -153,6 +154,23 @@ pnpm dev
 # Production
 pnpm build && pnpm start
 ```
+
+---
+
+## Docker Support (Optional)
+
+You can run the entire stack (PostgreSQL + App) using Docker Compose. This is ideal for quick testing or production deployment.
+
+1. Ensure `.env` is configured correctly.
+2. In `.env`, set the host inside `DATABASE_URL` to point to the docker service, e.g.:
+   `DATABASE_URL=postgresql://postgres:password@postgres:5432/db_name?schema=public`
+3. Run the stack:
+
+```bash
+docker compose up --build -d
+```
+
+*Note: Migrations will automatically run when the app container starts up.*
 
 ---
 
@@ -179,7 +197,7 @@ pnpm build && pnpm start
 ### Base URL
 
 ```
-http://localhost:3000/api
+http://localhost:8000/api
 ```
 
 ### Response Format
@@ -346,7 +364,7 @@ node dist/index.js
 ## Roadmap
 
 - [ ] Testing setup (Vitest + Supertest)
-- [ ] Docker and Docker Compose configuration
+- [x] Docker and Docker Compose configuration
 - [ ] OpenAPI / Swagger documentation
 - [ ] Refresh token support
 - [ ] Rate limiting middleware

@@ -1,0 +1,26 @@
+﻿node_modules/
+dist/
+build/
+.git/
+.gitignore
+.env
+.env.*
+!.env.example
+
+# logs
+logs/
+*.log
+
+# editor
+.vscode/
+.idea/
+.DS_Store
+
+# test / coverage
+coverage/
+
+# internal docs
+internal/
+AGENTS.md
+CLAUDE.md
+README.md
